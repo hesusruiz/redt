@@ -29,11 +29,11 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-var logger *zap.SugaredLogger
+var Logger *zap.SugaredLogger
 
 func init() {
 	// Set the common logger
-	logger = zap.Must(zap.NewProduction()).Sugar()
+	Logger = zap.Must(zap.NewProduction()).Sugar()
 }
 
 type NodeInfo struct {
@@ -133,6 +133,28 @@ func (rt *RedTNode) BlockByHash(blockhash common.Hash) (*ethertypes.Block, error
 
 	return block, nil
 
+}
+
+// BlockByNumber retrieves a block
+func (rt *RedTNode) BlockByNumber(number int64) (*ethertypes.Block, error) {
+
+	var blockNumber *big.Int
+
+	if number >= 0 {
+		blockNumber = big.NewInt(number)
+	}
+
+	// Set the timeout for the next call
+	ctx, cancel := context.WithTimeout(context.Background(), rt.timeout)
+	defer cancel()
+
+	// Retrieve the header from the node (may be remote)
+	block, err := rt.cli.BlockByNumber(ctx, blockNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	return block, err
 }
 
 // HeaderByNumber retrieves a header from the internal cache of from the blockchain node if cache miss
@@ -264,14 +286,14 @@ func (rt *RedTNode) DisplayMyInfo() {
 
 	ni, err := rt.NodeInfo()
 	if err != nil {
-		logger.Error(err)
+		Logger.Error(err)
 		return
 	}
 
 	fmt.Printf("About my node:\n")
 	out, err := json.MarshalIndent(ni, "", "  ")
 	if err != nil {
-		logger.Error(err)
+		Logger.Error(err)
 		return
 	}
 	fmt.Printf("%v\n\n", string(out))
@@ -282,13 +304,13 @@ func (rt *RedTNode) DisplayPeersInfo() {
 
 	peers, err := rt.Peers()
 	if err != nil {
-		logger.Error(err)
+		Logger.Error(err)
 		return
 	}
 	fmt.Printf("About my peers:\n")
 	out, err := json.MarshalIndent(peers, "", "  ")
 	if err != nil {
-		logger.Error(err)
+		Logger.Error(err)
 		return
 	}
 	fmt.Printf("%v\n\n", string(out))
@@ -381,7 +403,7 @@ func DisplayPeersInfo(url string) {
 	// Connect to the RedT node
 	rt, err := NewRedTNode(url)
 	if err != nil {
-		logger.Error(err)
+		Logger.Error(err)
 		return
 	}
 

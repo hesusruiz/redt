@@ -51,10 +51,10 @@ type StatisticsSummary struct {
 	GasUsedH         string
 	BlockNumTxs      int
 	AllNumTxs        int
-	Signers          []SignersTable
+	Signers          []Signer
 }
 
-type SignersTable struct {
+type Signer struct {
 	NextProposer    bool
 	CurrentProposer bool
 	AsProposer      int
@@ -114,7 +114,7 @@ func (st *StatisticsRedT) StatisticsForBlock(fullBlock *ethertypes.Block) (*Stat
 	}
 
 	// Calculate the table of validators
-	validatorTable := make([]SignersTable, len(st.ValidatorSet()))
+	validatorTable := make([]Signer, len(st.ValidatorSet()))
 
 	for i, addr := range st.ValidatorSet() {
 
