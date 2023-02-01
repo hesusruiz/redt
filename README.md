@@ -1,2 +1,2 @@
 # redt
-Facilitating usage of RedT as a wrapper on top of standard APIs.
+Facilitating usage of RedT for Go applications as a wrapper on top of standard APIs.
